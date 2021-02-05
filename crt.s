@@ -182,7 +182,8 @@ _usb_hp_can_tx_handler:
 
 .thumb_func
 _usb_lp_can_rx0_handler:
-	b irq_usb_lp_can_rx0_handler
+	ldr r0,=irq_usb_lp_can_rx0_handler
+	bx r0
 
 .thumb_func
 _can_rx1_handler:
