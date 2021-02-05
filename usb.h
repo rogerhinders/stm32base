@@ -139,7 +139,7 @@ void usb_get_ep_descriptor(struct usb_ep_descriptor *dst);
 void usb_get_config_descriptor_container(
 		struct usb_config_descriptor_container *dst);
 void usb_get_string_descriptor(uint32_t id, struct usb_str_descriptor *dst);
-void init_usb();
+void usb_init();
 void init_usb_ep();
 void usb_write_ep(void *data, size_t n);
 void usb_handle_request(uint32_t ep_id);

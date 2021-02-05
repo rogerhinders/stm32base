@@ -65,47 +65,51 @@ void ssd1306_write_array(uint8_t *buf, uint32_t len) {
 }
 
 void ssd1306_init() {
-	//enable display
+	for(int i = 0; i < 1000000; i++) {
+		/* waste time, wait for display to be ready .. */
+	}
+
+	/* enable display */
 	ssd1306_run_cmd(0xae);
-	//set contrast
+	/* set contrast */
 	ssd1306_run_cmd(0x81);
 	ssd1306_run_cmd(0x7f);
-	//deactivate scroll
+	/* deactivate scroll */
 	ssd1306_run_cmd(0x2e);
-	//set horiz mode
+	/* set horiz mode */
 	ssd1306_run_cmd(0x20);
 	ssd1306_run_cmd(0x00);
-	// segment remap
+	/*  segment remap */
 	ssd1306_run_cmd(0xa1);
-	//set multiplex ratio, vres - 1, 32-1 = 31
+	/* set multiplex ratio, vres - 1, 32-1 = 31 */
 	ssd1306_run_cmd(0xa8);
 	ssd1306_run_cmd(0x1f);
-	//set normal com scan dir
+	/* set normal com scan dir */
 	ssd1306_run_cmd(0xc8);
-	//set 0 display offset
+	/* set 0 display offset */
 	ssd1306_run_cmd(0xd3);
 	ssd1306_run_cmd(0x00);
-	//set startline 0
+	/* set startline 0 */
 	ssd1306_run_cmd(0x40);
-	//set com pins
+	/* set com pins */
 	ssd1306_run_cmd(0xda);
 	ssd1306_run_cmd(0x02);
-	//set clock div
+	/* set clock div */
 	ssd1306_run_cmd(0xd5);
 	ssd1306_run_cmd(0x80);
-	//set precharge
+	/* set precharge */
 	ssd1306_run_cmd(0xd9);
 	ssd1306_run_cmd(0xf1);
-	//set vcom
+	/* set vcom */
 	ssd1306_run_cmd(0xdb);
 	ssd1306_run_cmd(0x40);
-	//enable chargepump
+	/* enable chargepump */
 	ssd1306_run_cmd(0x8d);
 	ssd1306_run_cmd(0x14);
-	//set entire display on from ram
+	/* set entire display on from ram */
 	ssd1306_run_cmd(0xa4);
-	//set normal non-inverted disp
+	/* set normal non-inverted disp */
 	ssd1306_run_cmd(0xa6);
-	//set display on
+	/* set display on */
 	ssd1306_run_cmd(0xaf);
 }

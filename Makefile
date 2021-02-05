@@ -11,14 +11,16 @@ main.o: main.c
 	$(CC) $(CFLAGS) -c -o main.o main.c
 usb.o: usb.c
 	$(CC) $(CFLAGS) -c -o usb.o usb.c
+lcd.o: lcd.c
+	$(CC) $(CFLAGS) -c -o lcd.o lcd.c
 ssd1306.o: ssd1306.c
 	$(CC) $(CFLAGS) -c -o ssd1306.o ssd1306.c
 i2c.o: i2c.c
 	$(CC) $(CFLAGS) -c -o i2c.o i2c.c
 stm32f103.o: stm32f103.c
 	$(CC) $(CFLAGS) -c -o stm32f103.o stm32f103.c
-app.elf: linker.ld crt.o main.o usb.o stm32f103.o ssd1306.o i2c.o
-	$(LD) -T linker.ld -o app.elf crt.o main.o usb.o stm32f103.o ssd1306.o i2c.o
+app.elf: linker.ld crt.o main.o usb.o stm32f103.o ssd1306.o i2c.o lcd.o
+	$(LD) -T linker.ld -o app.elf crt.o main.o usb.o stm32f103.o ssd1306.o i2c.o lcd.o
 app.bin: app.elf
 	$(BIN) -O binary app.elf app.bin
 clean:

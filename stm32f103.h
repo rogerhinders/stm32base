@@ -255,7 +255,7 @@
 #define USB_COUNTN_RX_NUM_BLOCK   (0x1f << USB_P_COUNTN_RX_NUM_BLOCK)
 #define USB_COUNTN_RX_BLSIZE      (1 << USB_P_COUNTN_RX_BLSIZE)
 
-void init_flash();
-void init_clock();
-void init_gpio();
+void stm32_flash_init();
+void stm32_clock_init();
+void stm32_gpio_init();
 #endif /* STM32F103_H */

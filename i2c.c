@@ -1,6 +1,6 @@
 #include "i2c.h"
 
-void init_i2c() {
+void i2c_init() {
 	RCC_APB1ENR |= RCC_APB1ENR_I2C1_ENABLE;
 
 	RCC_APB1RSTR |= RCC_APB1RSTR_I2C1RST;
@@ -13,8 +13,6 @@ void init_i2c() {
 	//Tpclk1 = 1/36
 	uint32_t ccr = 0xb4;
 	I2C1_CCR |= ccr;
-
-
 
 	I2C1_TRISE |= 0x25; //0x0009;
 

@@ -1,11 +1,11 @@
 #include "stm32f103.h"
 
 
-void init_flash() {
+void stm32_flash_init() {
 	FMI_ACR = FMI_ACR_PREFETCH_ENABLED | FMI_ACR_LATENCY_TWO_STATE;
 }
 
-void init_clock() {
+void stm32_clock_init() {
 	/* CFGR must be setup before setting CR register */
 	RCC_CFGR = RCC_CFGR_PLL_MUL_9 | RCC_CFGR_PLL_USE_HSE | RCC_CFGR_PCLK2_DIV_6
 			| RCC_CFGR_PCLK1_DIV_2 | RCC_CFGR_SYSCLK_USE_PLL;
@@ -20,7 +20,7 @@ void init_clock() {
 	while(((RCC_CFGR & RCC_CFGR_M_SWS) >> 2) != (RCC_CFGR & RCC_CFGR_M_SW)) ;
 }
 
-void init_gpio() {
+void stm32_gpio_init() {
 	/* enable port A */
 	RCC_APB2ENR |= RCC_IOPAEN;
 

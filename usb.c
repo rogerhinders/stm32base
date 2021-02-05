@@ -164,7 +164,7 @@ void usb_get_string_descriptor(uint32_t id, struct usb_str_descriptor *dst) {
 	}
 }
 
-void init_usb() {
+void usb_init() {
 	/* enable usb */
 	RCC_APB1ENR |= RCC_APB1ENR_USB_ENABLE;
 

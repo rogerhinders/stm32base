@@ -5,6 +5,6 @@
 #include <stdio.h>
 #include "stm32f103.h"
 
-void init_i2c();
+void i2c_init();
 
 #endif /* I2C_H */
