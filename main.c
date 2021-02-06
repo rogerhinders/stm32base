@@ -6,8 +6,6 @@
 #include "i2c.h"
 #include "lcd.h"
 
-
-
 int main() {
 	stm32_flash_init();
 	stm32_clock_init();

@@ -5,9 +5,7 @@ void ssd1306_send_start() {
 	I2C1_CR1 |= I2C1_CR1_START;
 	while(!(I2C1_SR1 & I2C1_SR1_SB)) ;
 
-
 	I2C1_DR = 0x3c << 1;
-
 
 	while(!(I2C1_SR1 & I2C1_SR1_ADDR)) ;
 
@@ -16,7 +14,7 @@ void ssd1306_send_start() {
 
 	/* avoid compiler optimization */
 	(void)read_clear;
-	
+
 	while((I2C1_SR1 & I2C1_SR1_ADDR)) ;
 
 
@@ -26,7 +24,7 @@ void ssd1306_send_start() {
 
 void ssd1306_run_cmd(uint8_t cmd) {
 	ssd1306_send_start();
-	
+
 	while(!(I2C1_SR1 & I2C1_SR1_TXE)) ;
 	I2C1_DR = 0x0;
 	while(!(I2C1_SR1 & I2C1_SR1_TXE)) ;
@@ -65,8 +63,9 @@ void ssd1306_write_array(uint8_t *buf, uint32_t len) {
 }
 
 void ssd1306_init() {
-	for(int i = 0; i < 1000000; i++) {
+	for(int i = 0; i < 72000; i++) {
 		/* waste time, wait for display to be ready .. */
+		asm("nop");
 	}
 
 	/* enable display */

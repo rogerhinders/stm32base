@@ -9,7 +9,7 @@ void lcd_put_pix(uint32_t x, uint32_t y) {
 
 void lcd_put_char(uint8_t c, uint32_t col, uint32_t row) {
 	int c2 = (int)(c-0x20);
-	
+
 	for(int i = 0; i < 8; i++) {
 		lcd_buf[col*8+i + row * LCD_W] = amifont[c2*8+i];
 	}
@@ -24,7 +24,7 @@ void lcd_print_x32(uint32_t d, uint32_t col, uint32_t row) {
 	lcd_put_char('x', col+1, row);
 
 	for(int i = 0; i < 8; i++) {
-		lcd_put_char(lut[(d >> (7-i)*4) & 0xf], col+i+2, row);	
+		lcd_put_char(lut[(d >> (7-i)*4) & 0xf], col+i+2, row);
 	}
 }
 
