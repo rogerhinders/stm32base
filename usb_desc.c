@@ -44,7 +44,7 @@ void usb_desc_get_ep(struct usb_ep_descriptor *dst) {
 	dst->size = sizeof(struct usb_ep_descriptor);
 	dst->type = USB_DESC_TYPE_EP;
 	dst->ep_address = 1;
-	dst->attributes = 0x3; //interrupt
+	dst->attributes = 0x2; //bulk 0x3; //interrupt
 	dst->max_packet_size = 64;
 	dst->interval = 20;
 }

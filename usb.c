@@ -3,26 +3,29 @@
 static uint32_t dev_usb_addr = 0;
 static struct usb_request req;
 
-static void parse_request(volatile const uint32_t *src, struct usb_request *dst) {
-	uint8_t rtype = *src & 0xff;
+static void parse_request(uint32_t ep_id, struct usb_request *dst) {
+	uint32_t offset = USB_BDT_ADDR_RX(ep_id);
+	uint8_t rtype = USB_PMA(offset) & 0xff;
 
 	dst->direction = rtype & 0x80 ? USB_DIR_DEV_TO_HOST : USB_DIR_HOST_TO_DEV;
 	dst->type = rtype >> 5 & 3;
 	dst->recipient = rtype & 0x1f;
 
-	dst->which = *src >> 8 & 0xff;
+	dst->which = USB_PMA(offset) >> 8 & 0xff;
 
-	src++;
+	offset += 2;
 
-	dst->w_value = *src & 0xffff;
-	dst->w_value_l = *src & 0xff;
-	dst->w_value_h = (*src >> 8) & 0xff;
+	dst->w_value = USB_PMA(offset) & 0xffff;
+	dst->w_value_l = USB_PMA(offset) & 0xff;
+	dst->w_value_h = (USB_PMA(offset) >> 8) & 0xff;
 
-	src++;
-	dst->w_index = *src & 0xffff;
+	offset += 2;
 
-	src++;
-	dst->w_length = *src & 0xffff;
+	dst->w_index = USB_PMA(offset) & 0xffff;
+
+	offset += 2;
+
+	dst->w_length = USB_PMA(offset) & 0xffff;
 }
 
 static void reset() {
@@ -37,7 +40,6 @@ static void reset() {
 	/* set btable offset */
 	USB_BTABLE = USB_BTABLE_BASE_OFFSET;
 
-
 	/* setup default endpoint 0 */
 	/* set buffer desc table entry for ep0 */
 	USB_BDT_ADDR_TX(0) = 0x40;
@@ -46,11 +48,45 @@ static void reset() {
 	USB_BDT_COUNT_TX(0) = 0;
 	USB_BDT_COUNT_RX(0) = USB_COUNTN_RX_BLSIZE | (2 << USB_P_COUNTN_RX_NUM_BLOCK);
 
+	/* set ep1 buffers */
+	USB_BDT_ADDR_TX(1) = 0xc0;
+	USB_BDT_ADDR_RX(1) = 0x100;
+
+	USB_BDT_COUNT_TX(1) = 0;
+	USB_BDT_COUNT_RX(1) = USB_COUNTN_RX_BLSIZE | (2 << USB_P_COUNTN_RX_NUM_BLOCK);
+
 	/* enable device */
 	USB_DADDR = USB_DADDR_EF;
 
 	/* enable ep0 */
 	USB_EP(0) = (USB_EP_TYPE_CNTR << USB_P_EP_EP_TYPE) | (USB_EP_STAT_VALID << USB_P_EP_STAT_RX);
+
+	/* enable ep1 */
+	USB_EP(1) = (USB_EP_TYPE_BULK << USB_P_EP_EP_TYPE) 
+		| (USB_EP_STAT_VALID << USB_P_EP_STAT_RX)
+		| (USB_EP_DTOG_RX << USB_P_EP_DTOG_RX) | 1;
+}
+
+static void ep_reg_rx_valid(uint32_t ep_id) {
+	uint32_t v = (USB_EP(ep_id) ^ (USB_EP_STAT_VALID << USB_P_EP_STAT_RX)) & (USB_EP_INV_MASK | USB_EP_STAT_RX);
+	USB_EP(ep_id) = v;
+}
+
+static void ep_reg_tx_valid(uint32_t ep_id) {
+	uint32_t v = (USB_EP(ep_id) ^ (USB_EP_STAT_VALID << USB_P_EP_STAT_TX)) & (USB_EP_INV_MASK | USB_EP_STAT_TX);
+	USB_EP(ep_id) =v;
+}
+
+static void ep_reg_stall(uint32_t ep_id) {
+	uint32_t v = USB_EP(ep_id);
+	v = (v ^ (USB_EP_STAT_STALL << USB_P_EP_STAT_RX));
+	v = (v ^ (USB_EP_STAT_STALL << USB_P_EP_STAT_TX));
+	USB_EP(ep_id) = v & (USB_EP_INV_MASK | USB_EP_STAT_TX | USB_EP_STAT_RX);
+}
+
+static void ep_reg_clear(uint32_t ep_id, uint32_t bm) {
+	uint32_t v = USB_EP(ep_id);
+	USB_EP(ep_id) = v & ~bm & USB_EP_INV_MASK;
 }
 
 static void write_ep(uint32_t ep_id, void *data, size_t n) {
@@ -75,31 +111,11 @@ static void write_ep(uint32_t ep_id, void *data, size_t n) {
 	}
 
 	USB_BDT_COUNT_TX(ep_id) = n;
+
+	ep_reg_tx_valid(ep_id);
 }
 
-static void ep_reg_rx_valid(uint32_t ep_id) {
-	uint32_t v = (USB_EP(ep_id) ^ (USB_EP_STAT_VALID << USB_P_EP_STAT_RX)) & (USB_EP_INV_MASK | USB_EP_STAT_RX);
-	USB_EP(ep_id) = v;
-}
-
-static void ep_reg_tx_valid(uint32_t ep_id) {
-	uint32_t v = (USB_EP(ep_id) ^ (USB_EP_STAT_VALID << USB_P_EP_STAT_TX)) & (USB_EP_INV_MASK | USB_EP_STAT_TX);
-	USB_EP(ep_id) =v;
-}
-
-static void ep_reg_stall(uint32_t ep_id) {
-	uint32_t v = USB_EP(ep_id);
-	v = (v ^ (USB_EP_STAT_STALL << USB_P_EP_STAT_RX));
-	v = (v ^ (USB_EP_STAT_STALL << USB_P_EP_STAT_TX));
-	USB_EP(ep_id) = v & (USB_EP_INV_MASK | USB_EP_STAT_TX | USB_EP_STAT_RX);
-}
-
-static void ep_reg_clear(uint32_t ep_id, uint32_t bm) {
-	uint32_t v = USB_EP(0);
-	USB_EP(ep_id) = v & ~bm & USB_EP_INV_MASK;
-}
-
-static void usb_handle_request(uint32_t ep_id) {
+static void handle_request(uint32_t ep_id) {
 	uint32_t epv = USB_EP(ep_id);
 
 	if(epv & USB_EP_CTR_RX) {
@@ -112,8 +128,7 @@ static void usb_handle_request(uint32_t ep_id) {
 			struct usb_config_descriptor_container conf_desc;
 			struct usb_str_descriptor str_desc;
 
-			parse_request(
-					(volatile uint32_t *)(MEM_CAN_USB_BASE + (0x80*2)), &req);
+			parse_request(ep_id, &req);
 
 			switch(req.which) {
 			case USB_REQUEST_GET_DESC:
@@ -121,19 +136,16 @@ static void usb_handle_request(uint32_t ep_id) {
 				case USB_DESC_TYPE_DEV:
 					usb_desc_get_device(&dev_desc);
 					write_ep(ep_id, &dev_desc, req.w_length);
-					ep_reg_tx_valid(ep_id);
 					break;
 				case USB_DESC_TYPE_CONF:
 					usb_desc_get_config_container(&conf_desc);
 					write_ep(ep_id, &conf_desc, req.w_length);
-					ep_reg_tx_valid(ep_id);
 					break;
 				case USB_DESC_TYPE_STR:
 					usb_desc_get_string(req.w_value_l, &str_desc);
 					write_ep(ep_id, &str_desc,
 							str_desc.size < req.w_length ?
 							str_desc.size : req.w_length);
-					ep_reg_tx_valid(ep_id);
 					break;
 				default:
 					ep_reg_stall(ep_id);
@@ -147,12 +159,10 @@ static void usb_handle_request(uint32_t ep_id) {
 				}
 
 				write_ep(ep_id, NULL, 0);
-				ep_reg_tx_valid(ep_id);
 				break;
 			case USB_REQUEST_SET_ADDR:
 				dev_usb_addr = req.w_value & 0x7f;
 				write_ep(ep_id, NULL, 0);
-				ep_reg_tx_valid(ep_id);
 				break;
 			default:
 				/* do something */
@@ -161,7 +171,7 @@ static void usb_handle_request(uint32_t ep_id) {
 
 		} else { /* OUT packet */
 			/* set RX valid */
-				//h32(USB_EP0R,0);
+			lcd_print_x32(0x770000|ep_id, 1,2);
 			ep_reg_rx_valid(ep_id);
 		}
 
@@ -203,6 +213,7 @@ void irq_usb_lp_can_rx0_handler() {
 
 	if(USB_ISTR & USB_ISTR_ERR) {
 		USB_ISTR = ~USB_ISTR_ERR;
+		lcd_print_x32(0xff01, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_ESOF) {
@@ -211,11 +222,11 @@ void irq_usb_lp_can_rx0_handler() {
 
 	if(USB_ISTR & USB_ISTR_PMAOVR) {
 		USB_ISTR = ~USB_ISTR_PMAOVR;
+		lcd_print_x32(0xff02, 1,3);
 	}
 
 	while(USB_ISTR & USB_ISTR_CTR) {
-		usb_handle_request(USB_ISTR & USB_ISTR_EP_ID);
-
+		handle_request(USB_ISTR & USB_ISTR_EP_ID);
 	}
 }
 

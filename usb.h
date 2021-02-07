@@ -6,6 +6,7 @@
 #include "stm32f103.h"
 #include "util.h"
 #include "usb_desc.h"
+#include "lcd.h"
 
 #define USB_DIR_HOST_TO_DEV 0
 #define USB_DIR_DEV_TO_HOST 1
