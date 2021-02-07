@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include "stm32f103.h"
 #include "usb.h"
 #include "sine.h"

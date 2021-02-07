@@ -22,8 +22,6 @@
 #define USB_BDT_USB_ADDRn_RX_OFFSET 0x8
 #define USB_BDT_USB_COUNTn_RX_OFFSET 0xC
 
-#define USB_PMA_TO_USB_ADDR(x) (x / 2)
-#define USB_USB_TO_PMA_ADDR(x) (x * 2)
 
 #define NVIC_BASE     0xE000E100
 
@@ -58,14 +56,6 @@
 #define GPIOB_CRH     *(volatile uint32_t *)(GPIOB_BASE + 0x04)
 #define GPIOB_ODR     *(volatile uint32_t *)(GPIOB_BASE + 0x0C)
 
-#define USB_EP0R      *(volatile uint32_t *)(USB_REG_BASE + 0x00)
-#define USB_EP1R      *(volatile uint32_t *)(USB_REG_BASE + 0x04)
-#define USB_EP2R      *(volatile uint32_t *)(USB_REG_BASE + 0x08)
-#define USB_EP3R      *(volatile uint32_t *)(USB_REG_BASE + 0x0C)
-#define USB_EP4R      *(volatile uint32_t *)(USB_REG_BASE + 0x10)
-#define USB_EP5R      *(volatile uint32_t *)(USB_REG_BASE + 0x14)
-#define USB_EP6R      *(volatile uint32_t *)(USB_REG_BASE + 0x18)
-#define USB_EP7R      *(volatile uint32_t *)(USB_REG_BASE + 0x1C)
 
 #define USB_CNTR      *(volatile uint32_t *)(USB_REG_BASE + 0x40)
 #define USB_ISTR      *(volatile uint32_t *)(USB_REG_BASE + 0x44)
@@ -254,6 +244,26 @@
 #define USB_COUNTN_RX_COUNTN_RX   0x3ff
 #define USB_COUNTN_RX_NUM_BLOCK   (0x1f << USB_P_COUNTN_RX_NUM_BLOCK)
 #define USB_COUNTN_RX_BLSIZE      (1 << USB_P_COUNTN_RX_BLSIZE)
+
+#define USB_EP(x)     *(volatile uint32_t *)(USB_REG_BASE + (x)*4)
+
+#define USB_BDT_ADDR_TX(x) *(volatile uint32_t *)( \
+		MEM_CAN_USB_BASE + USB_BTABLE_BASE_OFFSET + USB_BDT_USB_ADDRn_TX_OFFSET + (x) * 16)
+
+#define USB_BDT_COUNT_TX(x) *(volatile uint32_t *)( \
+		MEM_CAN_USB_BASE + USB_BTABLE_BASE_OFFSET + USB_BDT_USB_COUNTn_TX_OFFSET + (x) * 16)
+
+#define USB_BDT_ADDR_RX(x) *(volatile uint32_t *)( \
+		MEM_CAN_USB_BASE + USB_BTABLE_BASE_OFFSET + USB_BDT_USB_ADDRn_RX_OFFSET + (x) * 16)
+
+#define USB_BDT_COUNT_RX(x) *(volatile uint32_t *)( \
+		MEM_CAN_USB_BASE + USB_BTABLE_BASE_OFFSET + USB_BDT_USB_COUNTn_RX_OFFSET + (x) * 16)
+
+#define USB_ADDR_TO_PMA_ADDR(x) ((x) / 2)
+#define USB_PMA_ADDR_TO_ADDR(x) ((x) * 2)
+
+#define USB_PMA(addr) *(volatile uint32_t *)( \
+		MEM_CAN_USB_BASE + USB_PMA_ADDR_TO_ADDR(addr))
 
 void stm32_flash_init();
 void stm32_clock_init();

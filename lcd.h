@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ssd1306.h"
-#include "amifont.h"
 
 #define LCD_W 128
 #define LCD_H 32

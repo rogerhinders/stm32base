@@ -2,7 +2,7 @@
 #define USB_H
 
 #include <stdint.h>
-#include <stdio.h>
+#include <stddef.h>
 #include "stm32f103.h"
 #include "util.h"
 #include "usb_desc.h"
