@@ -1,4 +1,4 @@
-#include "usb_desc.h"
+#include "common/usb_desc.h"
 
 void usb_desc_get_device(struct usb_device_descriptor *dst) {
 	dst->size = sizeof(struct usb_device_descriptor);

@@ -2,3 +2,4 @@
 *.pdf
 app.bin
 app.elf
+compile_commands.json

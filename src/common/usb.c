@@ -1,4 +1,4 @@
-#include "usb.h"
+#include "common/usb.h"
 
 static uint32_t dev_usb_addr = 0;
 static struct usb_request req;

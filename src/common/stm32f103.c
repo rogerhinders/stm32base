@@ -1,4 +1,4 @@
-#include "stm32f103.h"
+#include "common/stm32f103.h"
 
 
 void stm32_flash_init() {

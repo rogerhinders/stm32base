@@ -1,4 +1,4 @@
-#include "ssd1306.h"
+#include "common/ssd1306.h"
 
 void ssd1306_send_start() {
 

@@ -1,5 +1,5 @@
-#include "lcd.h"
-#include "amifont.h"
+#include "common/lcd.h"
+#include "common/amifont.h"
 
 static uint8_t lcd_buf[512];
 

@@ -1,4 +1,4 @@
-#include "i2c.h"
+#include "common/i2c.h"
 
 void i2c_init() {
 	RCC_APB1ENR |= RCC_APB1ENR_I2C1_ENABLE;

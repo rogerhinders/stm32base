@@ -1,9 +1,8 @@
 #include <stdint.h>
-#include "stm32f103.h"
-#include "usb.h"
-#include "sine.h"
-#include "i2c.h"
-#include "lcd.h"
+#include "common/stm32f103.h"
+#include "common/usb.h"
+#include "common/i2c.h"
+#include "common/lcd.h"
 
 int main() {
 	stm32_flash_init();
