@@ -115,6 +115,11 @@ static void write_ep(uint32_t ep_id, void *data, size_t n) {
 	ep_reg_tx_valid(ep_id);
 }
 
+static void default_custom_request_out_handler(uint32_t ep_id) {
+}
+
+static void (*custom_request_out_handler)(uint32_t);
+
 static void handle_request(uint32_t ep_id) {
 	uint32_t epv = USB_EP(ep_id);
 
@@ -171,7 +176,7 @@ static void handle_request(uint32_t ep_id) {
 
 		} else { /* OUT packet */
 			/* set RX valid */
-			lcd_print_x32(0x770000|ep_id, 1,2);
+			custom_request_out_handler(ep_id);
 			ep_reg_rx_valid(ep_id);
 		}
 
@@ -230,7 +235,14 @@ void irq_usb_lp_can_rx0_handler() {
 	}
 }
 
+void usb_set_custom_request_out_handler(void (*handler)(uint32_t)) {
+	custom_request_out_handler = handler;
+}
+
 void usb_init() {
+	/* setup default handlers */
+	custom_request_out_handler = default_custom_request_out_handler;
+
 	/* enable usb */
 	RCC_APB1ENR |= RCC_APB1ENR_USB_ENABLE;
 

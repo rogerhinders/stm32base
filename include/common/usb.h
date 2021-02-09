@@ -51,6 +51,7 @@ struct usb_request {
 };
 
 void irq_usb_lp_can_rx0_handler();
+void usb_set_custom_request_out_handler(void (*handler)(uint32_t));
 void usb_init();
 
 #endif /* USB_H */

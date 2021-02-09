@@ -24,7 +24,7 @@ OBJ_BOOT := $(SRC_COMMON:$(SRC_COMMON_DIR)/%.c=$(OBJ_COMMON_DIR)/%.o) $(SRC_BOOT
 .PHONY: directories all clean
 
 # $(info $$OBJ_FW is [${OBJ_FW}])
-all: directories app.bin boot.bin
+all: directories boot.bin app.bin
 directories: $(OBJ_FW_DIR) $(OBJ_BOOT_DIR) $(OBJ_COMMON_DIR)
 
 $(OBJ_FW_DIR)/crt.o: $(SRC_FW_DIR)/crt.s
@@ -61,7 +61,7 @@ $(OBJ_BOOT_DIR):
 
 clean:
 	rm -f $(OBJ_COMMON_DIR)/*.o $(OBJ_BOOT_DIR)/*.o $(OBJ_FW_DIR)/*.o *.elf *.bin
-flash: app.bin
-	$(STL) write app.bin 0x8000000
+flash: boot.bin
+	$(STL) write boot.bin 0x8000000
 erase:
 	$(STL) erase

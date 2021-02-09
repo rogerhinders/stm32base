@@ -1,6 +1,6 @@
 MEMORY
 {
-  rom (rx) : ORIGIN = 0x08000000, LENGTH = 64K
+  rom (rx) : ORIGIN = 0x08002000, LENGTH = 62K
   ram (xrw)  : ORIGIN = 0x20000000, LENGTH = 20K
 }
 
@@ -8,7 +8,7 @@ STACK_SIZE = 0x2000;
 
 SECTIONS
 {
-    .text 0x08000000:
+    .text 0x08002000:
     {
         KEEP(*(.vectors .vectors.*))
         *(.text*)
