@@ -77,7 +77,7 @@ bool req_out_handler(uint32_t ep_id) {
 
 void boot_fw() {
 	asm volatile(
-			"ldr r0,=0x08002000\n\t"
+			"ldr r0,=0x08002001\n\t"
 			"bx r0\n\t"
 		);
 }
