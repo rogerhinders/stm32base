@@ -12,6 +12,7 @@
 
 void lcd_put_pix(uint32_t x, uint32_t y);
 void lcd_put_char(uint8_t c, uint32_t col, uint32_t row);
+void lcd_put_str(const char *s, uint32_t col, uint32_t row);
 void lcd_print_x32(uint32_t d, uint32_t col, uint32_t row);
 void lcd_clear();
 void lcd_render();

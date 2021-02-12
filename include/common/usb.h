@@ -2,6 +2,7 @@
 #define USB_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include "stm32f103.h"
 #include "util.h"
@@ -51,7 +52,9 @@ struct usb_request {
 };
 
 void irq_usb_lp_can_rx0_handler();
-void usb_set_custom_request_out_handler(void (*handler)(uint32_t));
+void usb_parse_request(uint32_t ep_id, struct usb_request *dst);
+void usb_write_ep(uint32_t ep_id, void *data, size_t n);
+void usb_set_custom_request_out_handler(bool (*handler)(uint32_t));
 void usb_init();
 
 #endif /* USB_H */

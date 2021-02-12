@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <libusb-1.0/libusb.h>
@@ -6,7 +7,41 @@
 #define DEV_VID 0xC251
 #define DEV_PID 0x1C01
 
-bool upload_fw() {
+uint8_t *read_fw(char *path, size_t *n) {
+	FILE *fp;
+	uint8_t *buf = NULL;
+
+	fp = fopen(path, "rb");
+
+	if(fp == NULL) {
+		goto _read_fw_cleanup;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	*n = ftell(fp);
+	rewind(fp);
+
+	buf = malloc(*n);
+
+	if(buf == NULL) {
+		goto _read_fw_cleanup;
+	}
+
+	size_t read_n = fread(buf, 1, *n, fp);
+
+	if(read_n != *n) {
+		free(buf);
+		buf = NULL;
+	}
+
+_read_fw_cleanup:
+	if(fp != NULL)
+		fclose(fp);
+
+	return buf;
+}
+
+bool upload_fw(uint8_t *buf, size_t n) {
 	bool ret = false;
 	libusb_device **devices;
 	libusb_device *device;
@@ -62,9 +97,12 @@ bool upload_fw() {
 
 	uint8_t ep_addr = conf_desc->interface[0].altsetting
 		->endpoint[0].bEndpointAddress;
+	size_t max_packet_size = conf_desc->interface[0].altsetting
+		->endpoint[0].wMaxPacketSize;
 
 	printf("EP addr: %d\n",
 			conf_desc->interface[0].altsetting->endpoint[0].bEndpointAddress);
+	printf("max packet size: %lu\n", max_packet_size);
 
 	if((err = libusb_open(device, &handle)) < 0) {
 		printf("error opening device: %d\n", err);
@@ -99,20 +137,46 @@ bool upload_fw() {
 		}
 	}
 
-	uint8_t tmp[25];
-
-	for(int i = 0; i < 25; i++) {
-		tmp[i] = i;
+/*	if(libusb_control_transfer(
+			handle,
+			0x40, //req type, host-to-dev,vendor,device
+			0x1, //1 = start fw flash
+			0, // wValue
+			0, // wIndex
+			NULL, //data	
+			0, //wLen
+			5000 //timeout
+			) < 0) {
+		printf("error writing control data\n");
+		goto _upload_fw_cleanup;
 	}
+	
+	printf("sent control data\n");*/
 
+//	size_t tot_written = 0;
 	int n_written;
+	
+/*
+	int32_t packet_size = 64;
 
+	while(n_written < n) {
+		printf("writing #%ld\n", tot_written / packet_size);
+		if((err = libusb_bulk_transfer(
+						handle, ep_addr, buf+tot_written, packet_size, &n_written, 5000)) < 0) {
+			printf("error writing data: %d\n", err);
+			goto _upload_fw_cleanup;
+		}
+
+		tot_written += n_written;
+	}
+*/
 	if((err = libusb_bulk_transfer(
-					handle, ep_addr, tmp, 25, &n_written, 5000)) < 0) {
+					handle, ep_addr, buf, n, &n_written, 5000)) < 0) {
 		printf("error writing data: %d\n", err);
 		goto _upload_fw_cleanup;
 	}
 
+	//printf("done writing data at %ld bytes\n", tot_written);
 	printf("done writing data\n");
 
 	ret = true;			
@@ -125,7 +189,12 @@ _upload_fw_cleanup:
 	return ret;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+	if(argc != 2) {
+		printf("usage: %s <path>\n", argv[0]);
+		return 0;
+	}
+
 	int r = libusb_init(NULL);
 
 	if(r < 0) {
@@ -133,7 +202,17 @@ int main() {
 		return 1;
 	}
 
-	upload_fw();	
+	size_t n;
+	uint8_t *buf = read_fw(argv[1], &n);
+
+	if(buf == NULL) {
+		printf("error reading file\n");
+	} else {
+		printf("read %s at %ldb\n", argv[1], n);
+		upload_fw(buf, n);
+		free(buf);
+	}
+
 
 	libusb_exit(NULL);
 

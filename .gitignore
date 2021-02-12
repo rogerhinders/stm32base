@@ -1,5 +1,5 @@
 *.o
 *.pdf
-app.bin
-app.elf
+*.bin
+*.elf
 compile_commands.json

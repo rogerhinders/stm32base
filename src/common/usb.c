@@ -3,7 +3,7 @@
 static uint32_t dev_usb_addr = 0;
 static struct usb_request req;
 
-static void parse_request(uint32_t ep_id, struct usb_request *dst) {
+void usb_parse_request(uint32_t ep_id, struct usb_request *dst) {
 	uint32_t offset = USB_BDT_ADDR_RX(ep_id);
 	uint8_t rtype = USB_PMA(offset) & 0xff;
 
@@ -89,7 +89,7 @@ static void ep_reg_clear(uint32_t ep_id, uint32_t bm) {
 	USB_EP(ep_id) = v & ~bm & USB_EP_INV_MASK;
 }
 
-static void write_ep(uint32_t ep_id, void *data, size_t n) {
+void usb_write_ep(uint32_t ep_id, void *data, size_t n) {
 	uint16_t *p = data;
 
 	if(n > USB_EP0_MAX_PACKET_SZ) {
@@ -115,10 +115,11 @@ static void write_ep(uint32_t ep_id, void *data, size_t n) {
 	ep_reg_tx_valid(ep_id);
 }
 
-static void default_custom_request_out_handler(uint32_t ep_id) {
+static bool default_custom_request_out_handler(uint32_t ep_id) {
+	return true;
 }
 
-static void (*custom_request_out_handler)(uint32_t);
+static bool (*custom_request_out_handler)(uint32_t);
 
 static void handle_request(uint32_t ep_id) {
 	uint32_t epv = USB_EP(ep_id);
@@ -133,22 +134,22 @@ static void handle_request(uint32_t ep_id) {
 			struct usb_config_descriptor_container conf_desc;
 			struct usb_str_descriptor str_desc;
 
-			parse_request(ep_id, &req);
+			usb_parse_request(ep_id, &req);
 
 			switch(req.which) {
 			case USB_REQUEST_GET_DESC:
 				switch(req.w_value_h) {
 				case USB_DESC_TYPE_DEV:
 					usb_desc_get_device(&dev_desc);
-					write_ep(ep_id, &dev_desc, req.w_length);
+					usb_write_ep(ep_id, &dev_desc, req.w_length);
 					break;
 				case USB_DESC_TYPE_CONF:
 					usb_desc_get_config_container(&conf_desc);
-					write_ep(ep_id, &conf_desc, req.w_length);
+					usb_write_ep(ep_id, &conf_desc, req.w_length);
 					break;
 				case USB_DESC_TYPE_STR:
 					usb_desc_get_string(req.w_value_l, &str_desc);
-					write_ep(ep_id, &str_desc,
+					usb_write_ep(ep_id, &str_desc,
 							str_desc.size < req.w_length ?
 							str_desc.size : req.w_length);
 					break;
@@ -163,11 +164,11 @@ static void handle_request(uint32_t ep_id) {
 					/* set conf */
 				}
 
-				write_ep(ep_id, NULL, 0);
+				usb_write_ep(ep_id, NULL, 0);
 				break;
 			case USB_REQUEST_SET_ADDR:
 				dev_usb_addr = req.w_value & 0x7f;
-				write_ep(ep_id, NULL, 0);
+				usb_write_ep(ep_id, NULL, 0);
 				break;
 			default:
 				/* do something */
@@ -176,7 +177,11 @@ static void handle_request(uint32_t ep_id) {
 
 		} else { /* OUT packet */
 			/* set RX valid */
-			custom_request_out_handler(ep_id);
+			if(!custom_request_out_handler(ep_id)) {
+				ep_reg_stall(ep_id);
+				return;
+			}
+
 			ep_reg_rx_valid(ep_id);
 		}
 
@@ -206,28 +211,32 @@ void irq_usb_lp_can_rx0_handler() {
 	if(USB_ISTR & USB_ISTR_SOF) {
 		/* reset flag */
 		USB_ISTR = ~USB_ISTR_SOF;
+//		lcd_print_x32(0xff01, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_SUSP) {
 		USB_ISTR = ~USB_ISTR_SUSP;
+//		lcd_print_x32(0xff02, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_WKUP) {
 		USB_ISTR = ~USB_ISTR_WKUP;
+		lcd_print_x32(0xff03, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_ERR) {
 		USB_ISTR = ~USB_ISTR_ERR;
-		lcd_print_x32(0xff01, 1,3);
+		lcd_print_x32(0xff04, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_ESOF) {
 		USB_ISTR = ~USB_ISTR_ESOF;
+//		lcd_print_x32(0xff05, 1,3);
 	}
 
 	if(USB_ISTR & USB_ISTR_PMAOVR) {
 		USB_ISTR = ~USB_ISTR_PMAOVR;
-		lcd_print_x32(0xff02, 1,3);
+		lcd_print_x32(0xff06, 1,3);
 	}
 
 	while(USB_ISTR & USB_ISTR_CTR) {
@@ -235,7 +244,7 @@ void irq_usb_lp_can_rx0_handler() {
 	}
 }
 
-void usb_set_custom_request_out_handler(void (*handler)(uint32_t)) {
+void usb_set_custom_request_out_handler(bool (*handler)(uint32_t)) {
 	custom_request_out_handler = handler;
 }
 

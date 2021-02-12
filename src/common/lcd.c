@@ -15,6 +15,13 @@ void lcd_put_char(uint8_t c, uint32_t col, uint32_t row) {
 	}
 }
 
+void lcd_put_str(const char *s, uint32_t col, uint32_t row) {
+	while(*s != '\0') {
+		lcd_put_char(*s, col++, row);
+		s++;
+	}
+}
+
 void lcd_print_x32(uint32_t d, uint32_t col, uint32_t row) {
 	char *lut = "0123456789ABCDEF";
 

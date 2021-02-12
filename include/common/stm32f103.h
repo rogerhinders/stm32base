@@ -46,9 +46,17 @@
 #define RCC_APB1ENR   *(volatile uint32_t *)(RCC_BASE   + 0x1C)
 
 #define FMI_ACR       *(volatile uint32_t *)(FMI_BASE   + 0x00)
+#define FMI_KEYR      *(volatile uint32_t *)(FMI_BASE   + 0x04)
+#define FMI_OPTKEYR   *(volatile uint32_t *)(FMI_BASE   + 0x08)
+#define FMI_SR        *(volatile uint32_t *)(FMI_BASE   + 0x0c)
+#define FMI_CR        *(volatile uint32_t *)(FMI_BASE   + 0x10)
+#define FMI_AR        *(volatile uint32_t *)(FMI_BASE   + 0x14)
+#define FMI_OBR       *(volatile uint32_t *)(FMI_BASE   + 0x1c)
+#define FMI_WRPR      *(volatile uint32_t *)(FMI_BASE   + 0x20)
 
 #define GPIOA_CRL     *(volatile uint32_t *)(GPIOA_BASE + 0x00)
 #define GPIOA_CRH     *(volatile uint32_t *)(GPIOA_BASE + 0x04)
+#define GPIOA_IDR     *(volatile uint32_t *)(GPIOA_BASE + 0x08)
 #define GPIOA_ODR     *(volatile uint32_t *)(GPIOA_BASE + 0x0C)
 #define GPIOA_BRR     *(volatile uint32_t *)(GPIOA_BASE + 0x14)
 
@@ -96,6 +104,8 @@
 
 /* RCC CR */
 #define RCC_RC_HSI_TRIM_16      (16 << 3) /* set by system as default */
+#define RCC_RC_HSI_ENABLE       1
+#define RCC_RC_HSI_READY        (1 << 1)
 #define RCC_RC_HSE_ENABLE       (1 << 16)
 #define RCC_RC_HSE_READY        (1 << 17)
 #define RCC_RC_PLL_ENABLE       (1 << 24)
@@ -105,9 +115,32 @@
 #define RCC_APB1ENR_I2C1_ENABLE (1 << 21)
 #define RCC_APB1ENR_USB_ENABLE (1 << 23)
 
+/* FMI keys */
+#define FMI_KEY_RDPRT 0x00A5
+#define FMI_KEY1 0x45670123
+#define FMI_KEY2 0xCDEF89AB
+
 /* FMI ACR */
 #define FMI_ACR_LATENCY_TWO_STATE 0x2
 #define FMI_ACR_PREFETCH_ENABLED (1 << 4)
+
+/* FMI SR */
+#define FMI_SR_BSY      1
+#define FMI_SR_PGERR    (1 << 2)
+#define FMI_SR_WRPRTERR (1 << 4)
+#define FMI_SR_EOP      (1 << 5)
+
+/* FMI CR */
+#define FMI_CR_PG     1
+#define FMI_CR_PER    (1 << 1)
+#define FMI_CR_MER    (1 << 2)
+#define FMI_CR_OPTPG  (1 << 4)
+#define FMI_CR_OPTER  (1 << 5)
+#define FMI_CR_STRT   (1 << 6)
+#define FMI_CR_LOCK   (1 << 7)
+#define FMI_CR_OPTWRE (1 << 9)
+#define FMI_CR_ERRIE  (1 << 10)
+#define FMI_CR_EOPIE  (1 << 12)
 
 /* I2C STUFF */
 #define I2C1_CR1_PE        1
