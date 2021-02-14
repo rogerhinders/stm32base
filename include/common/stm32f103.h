@@ -11,6 +11,7 @@
 #define I2C1_BASE     0x40005400
 #define I2C2_BASE     0x40005800
 #define USB_REG_BASE  0x40005C00
+#define SPI1_BASE     0x40013000
 
 #define MEM_CAN_USB_BASE 0x40006000
 
@@ -72,11 +73,23 @@
 #define USB_DADDR     *(volatile uint32_t *)(USB_REG_BASE + 0x4C)
 #define USB_BTABLE    *(volatile uint32_t *)(USB_REG_BASE + 0x50)
 
+
+#define SPI1_CR1      *(volatile uint32_t *)(SPI1_BASE + 0x00)
+#define SPI1_CR2      *(volatile uint32_t *)(SPI1_BASE + 0x04)
+#define SPI1_SR       *(volatile uint32_t *)(SPI1_BASE + 0x08)
+#define SPI1_DR       *(volatile uint32_t *)(SPI1_BASE + 0x0C)
+#define SPI1_CRCPR    *(volatile uint32_t *)(SPI1_BASE + 0x10)
+#define SPI1_RXCRCR   *(volatile uint32_t *)(SPI1_BASE + 0x14)
+#define SPI1_TXCRCR   *(volatile uint32_t *)(SPI1_BASE + 0x18)
+#define SPI1_I2SCFGR  *(volatile uint32_t *)(SPI1_BASE + 0x1C)
+#define SPI1_I2SPR    *(volatile uint32_t *)(SPI1_BASE + 0x20)
+
 #define RCC_APB1RSTR_I2C1RST (1 << 21)
 
 #define RCC_IOPAEN   (1<<2)
 #define RCC_IOPBEN   (1<<3)
 #define RCC_IOPCEN   (1<<4)
+#define RCC_APB2ENR_SPI1EN (1 << 12)
 
 #define GPIOA0       1
 #define GPIOA1       (1UL << 1)
@@ -189,6 +202,66 @@
 #define I2C1_SR1_PECERR   (1 << 12)
 #define I2C1_SR1_TIMEOUT  (1 << 14)
 #define I2C1_SR1_SMBALERT (1 << 15)
+
+/* SPI STUFF */
+#define SPI_P_CR1_CPHA     0
+#define SPI_P_CR1_CPOL     1
+#define SPI_P_CR1_MSTR     2
+#define SPI_P_CR1_BR       3
+#define SPI_P_CR1_SPE      6
+#define SPI_P_CR1_LSBFIRST 7
+#define SPI_P_CR1_SSI      8
+#define SPI_P_CR1_SSM      9
+#define SPI_P_CR1_RXONLY   10
+#define SPI_P_CR1_DFF      11
+#define SPI_P_CR1_CRCNEXT  12
+#define SPI_P_CR1_CRCEN    13
+#define SPI_P_CR1_BIDIOE   14
+#define SPI_P_CR1_BIDIMODE 15
+
+#define SPI_CR1_CPHA     1
+#define SPI_CR1_CPOL     (1 << SPI_P_CR1_CPOL)
+#define SPI_CR1_MSTR     (1 << SPI_P_CR1_MSTR)
+#define SPI_CR1_BR       (7 << SPI_P_CR1_BR)
+#define SPI_CR1_SPE      (1 << SPI_P_CR1_SPE)
+#define SPI_CR1_LSBFIRST (1 << SPI_P_CR1_LSBFIRST)
+#define SPI_CR1_SSI      (1 << SPI_P_CR1_SSI)
+#define SPI_CR1_SSM      (1 << SPI_P_CR1_SSM)
+#define SPI_CR1_RXONLY   (1 << SPI_P_CR1_RXONLY)
+#define SPI_CR1_DFF      (1 << SPI_P_CR1_DFF)
+#define SPI_CR1_CRCNEXT  (1 << SPI_P_CR1_CRCNEXT)
+#define SPI_CR1_CRCEN    (1 << SPI_P_CR1_CRCEN)
+#define SPI_CR1_BIDIOE   (1 << SPI_P_CR1_BIDIOE)
+#define SPI_CR1_BIDIMODE (1 << SPI_P_CR1_BIDIMODE)
+
+#define SPI_CR2_RXDMAEN 1
+#define SPI_CR2_TXDMAEN (1 << 1)
+#define SPI_CR2_SSOE    (1 << 2)
+#define SPI_CR2_ERRIE   (1 << 5)
+#define SPI_CR2_RXNEIE  (1 << 6)
+#define SPI_CR2_TXEIE   (1 << 7)
+
+#define SPI_SR_RXNE   1
+#define SPI_SR_TXE    (1 << 1)
+#define SPI_SR_CHSIDE (1 << 2)
+#define SPI_SR_UDR    (1 << 3)
+#define SPI_SR_CRCERR (1 << 4)
+#define SPI_SR_MODF   (1 << 5)
+#define SPI_SR_OVR    (1 << 6)
+#define SPI_SR_BSY    (1 << 7)
+
+#define SPI_I2SCFGR_CHLEN   1
+#define SPI_I2SCFGR_DATLEN  (3 << 1)
+#define SPI_I2SCFGR_CKPOL   (1 << 3)
+#define SPI_I2SCFGR_I2SSTD  (3 << 4)
+#define SPI_I2SCFGR_PCMSYNC (1 << 7)
+#define SPI_I2SCFGR_I2SCFG  (3 << 8)
+#define SPI_I2SCFGR_I2SE    (1 << 10)
+#define SPI_I2SCFGR_I2SMOD  (1 << 11)
+
+#define SPI_I2SPR_I2SDIV 0xff
+#define SPI_I2SPR_ODD    (1 << 8)
+#define SPI_I2SPR_MCKOE  (1 << 9)
 
 /* USB STUFF */
 #define USB_PMEM_BASE 0x40006000

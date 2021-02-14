@@ -24,7 +24,7 @@ void stm32_gpio_init() {
 	/* enable port B */
 	RCC_APB2ENR |= RCC_IOPBEN;
 
-	GPIOA_CRL = 0x22222228;
+	GPIOA_CRL = 0x12112228;
 
 	GPIOB_CRL &= 0x00FFFFFF;
 	GPIOB_CRL |= 0xff000000;

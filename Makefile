@@ -61,7 +61,9 @@ $(OBJ_BOOT_DIR):
 
 clean:
 	rm -f $(OBJ_COMMON_DIR)/*.o $(OBJ_BOOT_DIR)/*.o $(OBJ_FW_DIR)/*.o *.elf *.bin
-flash: boot.bin
+flashboot: boot.bin
 	$(STL) write boot.bin 0x8000000
+flashfw: app.bin
+	sudo ./flasher/flasher app.bin
 erase:
 	$(STL) erase
