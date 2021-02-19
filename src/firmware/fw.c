@@ -15,17 +15,19 @@ int main() {
 	lcd_init();
 	spi_init();
 
-	max7219_test();
+	max7219_init();
+	max7219_test2();
 
 	lcd_print_x32(SPI1_SR,0,1);
 	lcd_print_x32(SPI1_CR1, 0,2);
+	lcd_print_x32(0xffffffff, 0,3);
 
 	while(1) {
 
 		for(int i =0; i < 1000000; i++) {
 		}
 
-		GPIOA_ODR |= 2;
+	//	GPIOA_ODR |= 2;
 		
 		lcd_render();
 	}
